@@ -1,0 +1,7 @@
+Me: Satoshi Nakamoto
+Aragorn: Nacho Libre
+Li'l Sebastian: Grut
+Grut: Brave Sir Robin
+Satoshi Nakamoto: Aragorn
+Nacho Libre: Li'l Sebastian
+Brave Sir Robin: Me
