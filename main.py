@@ -1,6 +1,8 @@
+import os
+
 ## GLOBAL VARIABLES ##
 givers = {
-    'Me': [],
+    'Trogdor!': [],
     'Satoshi Nakamoto': [],
     'Aragorn': [],
     'Nacho Libre': [],
@@ -9,13 +11,13 @@ givers = {
     'Brave Sir Robin': []
 }
 lastMatches = {
-    'Me': 'Satoshi Nakamoto',
+    'Trogdor!': 'Satoshi Nakamoto',
     'Aragorn': 'Nacho Libre',
     "Li'l Sebastian": 'Groot',
     'Groot': 'Brave Sir Robin',
     'Satoshi Nakamoto': 'Aragorn',
     'Nacho Libre': "Li'l Sebastian",
-    'Brave Sir Robin': 'Me'
+    'Brave Sir Robin': 'Trogdor!'
 }
 
 
@@ -49,6 +51,16 @@ def CheckReceiverListLen():
             ReduceOptions()
 
 
+def CreateFiles():
+    # os.mkdir('SecretSantaMatches')
+    os.chdir('SecretSantaMatches')
+    for giver, receiver in givers.items():
+        receiver = str(receiver)[2:-2]
+
+        with open(f'{giver}.txt', 'w') as file:
+            print(f'You are buying for {receiver}', file=file)
+
+
 ## MAIN PROGRAM ##
 # Receive input of giver names from user & populates givers{}
 # GetGiverNames()
@@ -67,6 +79,6 @@ ReduceOptions()
 # UpdateLastYearMatches()
 
 # Creates one file per giver named after the giver which contains their receiver's name
-# CreateGiverFiles()
+CreateFiles()
 
 print(givers)
