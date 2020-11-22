@@ -1,7 +1,9 @@
-Trogdor!: Satoshi Nakamoto
-Aragorn: Nacho Libre
-Li'l Sebastian: Grut
-Grut: Brave Sir Robin
-Satoshi Nakamoto: Aragorn
-Nacho Libre: Li'l Sebastian
-Brave Sir Robin: Trogdor!
+# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>
+
+Trogdor!:Satoshi Nakamoto
+Aragorn:Nacho Libre
+Li'l Sebastian:Groot
+Groot:Brave Sir Robin
+Satoshi Nakamoto:Aragorn
+Nacho Libre:Li'l Sebastian
+Brave Sir Robin:Trogdor!

@@ -10,18 +10,21 @@ givers = {
     'Groot': [],
     'Brave Sir Robin': []
 }
-lastMatches = {
-    'Trogdor!': 'Satoshi Nakamoto',
-    'Aragorn': 'Nacho Libre',
-    "Li'l Sebastian": 'Groot',
-    'Groot': 'Brave Sir Robin',
-    'Satoshi Nakamoto': 'Aragorn',
-    'Nacho Libre': "Li'l Sebastian",
-    'Brave Sir Robin': 'Trogdor!'
-}
+lastMatches = {}
 
 
 ## Functions ##
+def PopulateLastMatches():
+    with open('LastYearMatches.txt') as file:
+        lines = file.readlines()
+        for line in lines:
+            if not line.startswith('#') and not line.strip() == (''):
+                players = line.strip().split(':')
+                giver = players[0]
+                receiver = players[1]
+                lastMatches[giver] = receiver
+
+
 def AssignInitialOptions():
     for giver, giverList in givers.items():
         # Add all names in givers list to each giver if they are initial receiver options
@@ -66,7 +69,7 @@ def CreateFiles():
 # GetGiverNames()
 
 # Populates lastMatches{} with LastYearMatches.txt data
-# PopulateLastMatches()
+PopulateLastMatches()
 
 # Keeps givers from knowing who's buying for who if they know how the script works
 # RandomizeGiversOrder()
