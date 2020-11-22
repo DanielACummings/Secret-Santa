@@ -54,12 +54,20 @@ def CheckReceiverListLen():
             ReduceOptions()
 
 
+def UpdateLastYearMatches():
+    with open('LastYearMatches.txt', 'w') as file:
+        print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n',
+              file=file)
+        for giver, receiver in givers.items():
+            receiver = str(receiver)[2:-2]
+            print(f'{giver}:{receiver}', file=file)
+
+
 def CreateFiles():
     # os.mkdir('SecretSantaMatches')
     os.chdir('SecretSantaMatches')
     for giver, receiver in givers.items():
         receiver = str(receiver)[2:-2]
-
         with open(f'{giver}.txt', 'w') as file:
             print(f'You are buying for {receiver}', file=file)
 
@@ -79,7 +87,7 @@ AssignInitialOptions()
 
 ReduceOptions()
 
-# UpdateLastYearMatches()
+UpdateLastYearMatches()
 
 # Creates one file per giver named after the giver which contains their receiver's name
 CreateFiles()
