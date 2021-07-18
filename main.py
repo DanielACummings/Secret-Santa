@@ -1,95 +1,147 @@
-import os
+import os, random
+
+version = "1.0.0"
 
 ## GLOBAL VARIABLES ##
 givers = {
-    'Trogdor!': [],
-    'Satoshi Nakamoto': [],
-    'Aragorn': [],
-    'Nacho Libre': [],
-    "Li'l Sebastian": [],
-    'Groot': [],
-    'Brave Sir Robin': []
+	'Trogdor': [],
+	'Satoshi Nakamoto': [],
+	'Aragorn': [],
+	'Nacho Libre': [],
+	"Li'l Sebastian": [],
+	'Groot': [],
+	'Brave Sir Robin': []
 }
+allGiversList = []
 lastMatches = {}
+giversWithFinalReceivers = {}
+
+# Check length of all givers while making list of shortest givers with length of > 1
+# If shortest givers list has length of 0, assignments are complete
+# Choose random giver from shortest givers list
+# Choose random receiver from giver's list to be their receiver
+# Remove other receivers from giver's receiver
+# Remove receiver from other givers' receiver list
 
 
-## Functions ##
-def PopulateLastMatches():
-    with open('LastYearMatches.txt') as file:
-        lines = file.readlines()
-        for line in lines:
-            if not line.startswith('#') and not line.strip() == (''):
-                players = line.strip().split(':')
-                giver = players[0]
-                receiver = players[1]
-                lastMatches[giver] = receiver
+## FUNCTIONS ##
+def CheckGiverLengths():
+	activeGiver = ''
+	for giver, receivers in givers.items():
+		if len(receivers) < 3:
+			activeGiver = giver
+	return activeGiver
 
 
-def AssignInitialOptions():
-    for giver, giverList in givers.items():
-        # Add all names in givers list to each giver if they are initial receiver options
-        for receiver, giverList in givers.items():
-            # Excludes the giver themself & their last year receiver
-            if receiver == giver or receiver == lastMatches[giver]:
-                continue
-            else:
-                givers[giver].append(receiver)
+def PopulateInitialReceiverList(giver):
+	for item in allGiversList:
+		givers[giver].append(item)
+	# print(f'\n{giver}\'s receivers:')		#debug
+	# input(givers[giver])								#debug
 
 
-def ReduceOptions():
-    # Iterate thru givers
-    for giver, receiverList in givers.items():
-        # Iterate thru giver's reciever list
-        for receiver in receiverList:
-            if giver in givers[receiver]:
-                givers[receiver].remove(giver)
-                givers[giver].remove(receiver)
-    CheckReceiverListLen()
+def RemoveInvalidReceivers(giver):
+	givers[giver].remove(giver)
+	givers[giver].remove(lastMatches[giver])
+	# print(f'\n{giver}\'s receivers after removing invalid ones:')		#debug
+	# input(givers[giver])																						#debug
 
 
-# Repeats ReduceOptions() if any giver has more than 1 receiver
-def CheckReceiverListLen():
-    for giver, receiverList in givers.items():
-        if len(receiverList) > 1:
-            ReduceOptions()
+def ChooseReceiver(activeGiver):
+	activeReceiver = random.choice(givers[activeGiver])
+	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
+	giversWithFinalReceivers[activeGiver] = activeReceiver
+	del givers[activeGiver]
+	# Remove assigned receiver from all other giver's receiver's lists
+	# print(f'\nreceiverLists before removing {activeReceiver}:')		#debug
+	# DebugPrintCurrentAssignments()		#debug
+	for giver, receiverList in givers.items():
+		if activeReceiver in receiverList:
+			receiverList.remove(activeReceiver)
+	# print(f'receiverList after removing {activeReceiver}:')		#debug
+	# DebugPrintCurrentAssignments()		#debug
 
 
-def UpdateLastYearMatches():
-    with open('LastYearMatches.txt', 'w') as file:
-        print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n',
-              file=file)
-        for giver, receiver in givers.items():
-            receiver = str(receiver)[2:-2]
-            print(f'{giver}:{receiver}', file=file)
+def DebugPrintCurrentAssignments():
+	print('giversWithFinalReceivers dictionary:')
+	for giver, receiver in giversWithFinalReceivers.items():
+		print(giver + ': ' + receiver)
+	print('\ngivers dictionary:')
+	for giver, receiverList in givers.items():
+		print(giver + ':')
+		print(receiverList)		#debug
+	input('')
 
 
-def CreateFiles():
-    # os.mkdir('SecretSantaMatches')
-    os.chdir('SecretSantaMatches')
-    for giver, receiver in givers.items():
-        receiver = str(receiver)[2:-2]
-        with open(f'{giver}.txt', 'w') as file:
-            print(f'You are buying for {receiver}', file=file)
 
-
-## MAIN PROGRAM ##
+## SETUP ##
 # Receive input of giver names from user & populates givers{}
-# GetGiverNames()
 
-# Populates lastMatches{} with LastYearMatches.txt data
-PopulateLastMatches()
 
-# Keeps givers from knowing who's buying for who if they know how the script works
-# RandomizeGiversOrder()
+# Add all givers to allGiversList list which will be used for assigning each giver all their potential receivers
+for key in givers.keys():
+	allGiversList.append(key)
+# print('\nallGiversList:')		#debug
+# input(allGiversList)				#debug
 
-# Assign each giver all names besides their own & the one they gifted last year
-AssignInitialOptions()
 
-ReduceOptions()
+# Populate lastMatches from LastYearMatches.txt
+with open('LastYearMatches.txt') as file:
+	lines = file.readlines()
+	for line in lines:
+		if not line.startswith('#') and not line.strip() == (''):
+			oldMatch = line.strip().split(':')
+			giver = oldMatch[0]
+			receiver = oldMatch[1]
+			lastMatches[giver] = receiver
+# print('\nlastMatches:')		#debug
+# input(lastMatches)				#debug
 
-UpdateLastYearMatches()
 
-# Creates one file per giver named after the giver which contains their receiver's name
-CreateFiles()
+# Add all giver names to each giver then remove their own name & their last year receiver
+for giver in givers:
+	PopulateInitialReceiverList(giver)
+	RemoveInvalidReceivers(giver)
+# print('\ngivers after being assigned receivers')		#debug
+# DebugPrintCurrentAssignments()		#debug
 
-print(givers)
+
+
+## CHOOSE FINAL RECEIVERS ##
+while True:
+	# If any giver has less than 3 receivers, they're set as the active giver. Otherwise, activeGiver returns as ''
+	activeGiver = CheckGiverLengths()
+	if activeGiver == '':
+		activeGiver = random.choice(list(givers.keys()))
+		# print('\nRandomly chosen giver: ' + activeGiver)		#debug
+	ChooseReceiver(activeGiver)
+	# Check length of givers{} to see if all have been assigned receivers
+	if len(givers.keys()) == 0:
+		break
+
+print('\nGivers with final receivers:')		#debug
+for giver, receiver in giversWithFinalReceivers.items():		#debug
+	print(giver + ': ' + receiver)		#debug
+input('Test complete!')		#debug
+
+
+## CREATE & EDIT FILES ##
+# # Updates LastYearMatches.txt
+# with open('LastYearMatches.txt', 'w') as file:
+# 	 print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n',
+# 			 file=file)
+# 	 for giver, receiver in givers.items():
+# 		 receiver = str(receiver)[2:-2]
+# 		 print(f'{giver}:{receiver}', file=file)
+
+
+# # Creates one file per giver named after the giver which contains their receiver's name
+# # os.mkdir('SecretSantaMatches')
+# os.chdir('SecretSantaMatches')
+# for giver, receiver in givers.items():
+#	 receiver = str(receiver)[2:-2]
+#	 with open(f'{giver}.txt', 'w') as file:
+#		 print(f'You are buying for {receiver}', file=file)
+
+# print('\nFinal giver & receiver pairs')		#debug
+# input(givers)															#debug
