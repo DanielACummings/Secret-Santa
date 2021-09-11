@@ -122,17 +122,17 @@ while True:
 print('\nGivers with final receivers:')		#debug
 for giver, receiver in giversWithFinalReceivers.items():		#debug
 	print(giver + ': ' + receiver)		#debug
-input('Test complete!')		#debug
+# input('Test complete!')		#debug
 
 
 ## CREATE & EDIT FILES ##
-# # Updates LastYearMatches.txt
-# with open('LastYearMatches.txt', 'w') as file:
-# 	 print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n',
-# 			 file=file)
-# 	 for giver, receiver in givers.items():
-# 		 receiver = str(receiver)[2:-2]
-# 		 print(f'{giver}:{receiver}', file=file)
+# Updates LastYearMatches.txt with this year's matches in
+# preparation for next year
+with open('LastYearMatches.txt', 'w') as file:
+	 print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n', file=file)
+	 for giver, receiver in giversWithFinalReceivers.items():
+		 receiver = str(receiver)
+		 print(f'{giver}:{receiver}', file=file)
 
 
 # # Creates one file per giver named after the giver which contains their receiver's name
