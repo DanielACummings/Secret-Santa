@@ -1,7 +1,7 @@
 # IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>
 
-Trogdor!:Brave Sir Robin
-Satoshi Nakamoto:Trogdor!
+Trogdor:Brave Sir Robin
+Satoshi Nakamoto:Trogdor
 Aragorn:Satoshi Nakamoto
 Nacho Libre:Aragorn
 Li'l Sebastian:Nacho Libre

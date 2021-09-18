@@ -3,15 +3,12 @@ import os, random
 version = "1.0.0"
 
 ## GLOBAL VARIABLES ##
-givers = {
-	'Trogdor': [],
-	'Satoshi Nakamoto': [],
-	'Aragorn': [],
-	'Nacho Libre': [],
-	"Li'l Sebastian": [],
-	'Groot': [],
-	'Brave Sir Robin': []
-}
+'''
+List of givers to enter in prompt:
+Trogdor, Satoshi Nakamoto, Aragorn, Nacho Libre, Li'l Sebastian, Groot, Brave Sir Robin
+'''
+
+givers = {}
 allGiversList = []
 lastMatches = {}
 giversWithFinalReceivers = {}
@@ -25,6 +22,12 @@ giversWithFinalReceivers = {}
 
 
 ## FUNCTIONS ##
+def PopulateGiversDictionary(userResList):
+	for user in userResList:
+		user = user.strip()
+		givers[user] = []
+
+
 def CheckGiverLengths():
 	activeGiver = ''
 	for giver, receivers in givers.items():
@@ -48,6 +51,7 @@ def RemoveInvalidReceivers(giver):
 
 
 def ChooseReceiver(activeGiver):
+	print(givers) #debug
 	activeReceiver = random.choice(givers[activeGiver])
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
 	giversWithFinalReceivers[activeGiver] = activeReceiver
@@ -75,8 +79,9 @@ def DebugPrintCurrentAssignments():
 
 
 ## SETUP ##
-# Receive input of giver names from user & populates givers{}
-
+userResList = input('Enter list of people participating separated by commas: ').split(',')
+PopulateGiversDictionary(userResList)
+input(givers) #debug
 
 # Add all givers to allGiversList list which will be used for assigning each giver all their potential receivers
 for key in givers.keys():
@@ -142,6 +147,3 @@ with open('LastYearMatches.txt', 'w') as file:
 #	 receiver = str(receiver)[2:-2]
 #	 with open(f'{giver}.txt', 'w') as file:
 #		 print(f'You are buying for {receiver}', file=file)
-
-# print('\nFinal giver & receiver pairs')		#debug
-# input(givers)															#debug
