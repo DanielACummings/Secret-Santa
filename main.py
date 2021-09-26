@@ -4,7 +4,7 @@ version = "1.0.0"
 
 ## GLOBAL VARIABLES ##
 '''
-List of givers to enter in prompt:
+List of test givers to enter in prompt:
 Trogdor, Satoshi Nakamoto, Aragorn, Nacho Libre, Li'l Sebastian, Groot, Brave Sir Robin
 '''
 
@@ -12,13 +12,6 @@ givers = {}
 allGiversList = []
 lastMatches = {}
 giversWithFinalReceivers = {}
-
-# Check length of all givers while making list of shortest givers with length of > 1
-# If shortest givers list has length of 0, assignments are complete
-# Choose random giver from shortest givers list
-# Choose random receiver from giver's list to be their receiver
-# Remove other receivers from giver's receiver
-# Remove receiver from other givers' receiver list
 
 
 ## FUNCTIONS ##
@@ -45,9 +38,10 @@ def PopulateInitialReceiverList(giver):
 
 def RemoveInvalidReceivers(giver):
 	givers[giver].remove(giver)
-	givers[giver].remove(lastMatches[giver])
+	if lastMatches[giver] in givers[giver]:
+		givers[giver].remove(lastMatches[giver])
 	# print(f'\n{giver}\'s receivers after removing invalid ones:')		#debug
-	# input(givers[giver])																						#debug
+	# input(givers[giver])		#debug
 
 
 def ChooseReceiver(activeGiver):
@@ -56,9 +50,9 @@ def ChooseReceiver(activeGiver):
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
 	giversWithFinalReceivers[activeGiver] = activeReceiver
 	del givers[activeGiver]
-	# Remove assigned receiver from all other giver's receiver's lists
 	# print(f'\nreceiverLists before removing {activeReceiver}:')		#debug
 	# DebugPrintCurrentAssignments()		#debug
+	# Remove assigned receiver from all other giver's receivers lists
 	for giver, receiverList in givers.items():
 		if activeReceiver in receiverList:
 			receiverList.remove(activeReceiver)
@@ -87,7 +81,7 @@ input(givers) #debug
 for key in givers.keys():
 	allGiversList.append(key)
 # print('\nallGiversList:')		#debug
-# input(allGiversList)				#debug
+# input(allGiversList)		#debug
 
 
 # Populate lastMatches from LastYearMatches.txt
@@ -100,7 +94,7 @@ with open('LastYearMatches.txt') as file:
 			receiver = oldMatch[1]
 			lastMatches[giver] = receiver
 # print('\nlastMatches:')		#debug
-# input(lastMatches)				#debug
+# input(lastMatches)		#debug
 
 
 # Add all giver names to each giver then remove their own name & their last year receiver
