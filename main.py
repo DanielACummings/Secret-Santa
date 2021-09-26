@@ -1,6 +1,6 @@
 import os, random
 
-version = "1.0.0"
+version = "0.0.2"
 
 ## GLOBAL VARIABLES ##
 '''
@@ -9,44 +9,53 @@ Trogdor, Satoshi Nakamoto, Aragorn, Nacho Libre, Li'l Sebastian, Groot, Brave Si
 '''
 
 givers = {}
-allGiversList = []
 lastMatches = {}
 giversWithFinalReceivers = {}
 
 
 ## FUNCTIONS ##
-def PopulateGiversDictionary(userResList):
-	for user in userResList:
-		user = user.strip()
-		givers[user] = []
+def PopulateGiversDictionary(playerList):
+	for player in playerList:
+		player = player.strip()
+		if player != '':
+			givers[player] = []
 
 
 def CheckGiverLengths():
 	activeGiver = ''
 	for giver, receivers in givers.items():
-		if len(receivers) < 3:
+		if len(receivers) < 2:
 			activeGiver = giver
 	return activeGiver
 
 
-def PopulateInitialReceiverList(giver):
-	for item in allGiversList:
-		givers[giver].append(item)
+def AssignInitialReceivers(giver):
+	# Assign full list of players to each giver
+	for player in playerList:
+		givers[giver].append(player)
 	# print(f'\n{giver}\'s receivers:')		#debug
-	# input(givers[giver])								#debug
+	# input(givers[giver])		#debug
 
-
-def RemoveInvalidReceivers(giver):
+	# Remove giver from their own receiver list
 	givers[giver].remove(giver)
-	if lastMatches[giver] in givers[giver]:
-		givers[giver].remove(lastMatches[giver])
+	# Remove last year's receiver
+	if giver in lastMatches:
+		if lastMatches[giver] in givers[giver]:
+			givers[giver].remove(lastMatches[giver])
 	# print(f'\n{giver}\'s receivers after removing invalid ones:')		#debug
 	# input(givers[giver])		#debug
 
 
 def ChooseReceiver(activeGiver):
 	print(givers) #debug
-	activeReceiver = random.choice(givers[activeGiver])
+	# The last giver will occasionally not have any receiver
+	# options left due to the randomized choosing of
+	# givers and receivers.
+	# When this happens, the assignment process restarts
+	if len(givers[activeGiver]) > 0:
+		activeReceiver = random.choice(givers[activeGiver])
+	else:
+		Restart()
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
 	giversWithFinalReceivers[activeGiver] = activeReceiver
 	del givers[activeGiver]
@@ -60,11 +69,17 @@ def ChooseReceiver(activeGiver):
 	# DebugPrintCurrentAssignments()		#debug
 
 
+def Restart():
+	PopulateGiversDictionary()
+	for giver in givers:
+		AssignInitialReceivers(giver)
+
+
 def DebugPrintCurrentAssignments():
-	print('giversWithFinalReceivers dictionary:')
+	print('giversWithFinalReceivers{}:')
 	for giver, receiver in giversWithFinalReceivers.items():
 		print(giver + ': ' + receiver)
-	print('\ngivers dictionary:')
+	print('\ngivers{}:')
 	for giver, receiverList in givers.items():
 		print(giver + ':')
 		print(receiverList)		#debug
@@ -72,17 +87,9 @@ def DebugPrintCurrentAssignments():
 
 
 
+
 ## SETUP ##
-userResList = input('Enter list of people participating separated by commas: ').split(',')
-PopulateGiversDictionary(userResList)
-input(givers) #debug
-
-# Add all givers to allGiversList list which will be used for assigning each giver all their potential receivers
-for key in givers.keys():
-	allGiversList.append(key)
-# print('\nallGiversList:')		#debug
-# input(allGiversList)		#debug
-
+print('Secret Santa Script version ' + version)
 
 # Populate lastMatches from LastYearMatches.txt
 with open('LastYearMatches.txt') as file:
@@ -97,10 +104,14 @@ with open('LastYearMatches.txt') as file:
 # input(lastMatches)		#debug
 
 
+playerList = input('Enter list of people participating separated by commas: ').split(',')
+PopulateGiversDictionary(playerList)
+# input(givers) #debug
+
+
 # Add all giver names to each giver then remove their own name & their last year receiver
 for giver in givers:
-	PopulateInitialReceiverList(giver)
-	RemoveInvalidReceivers(giver)
+	AssignInitialReceivers(giver)
 # print('\ngivers after being assigned receivers')		#debug
 # DebugPrintCurrentAssignments()		#debug
 
