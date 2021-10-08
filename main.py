@@ -1,4 +1,8 @@
-import os, random
+'''
+Continue asking for player list if duplicates are found or there is an insufficient number of players
+'''
+
+import os, random, sys
 
 version = "0.0.2"
 
@@ -14,10 +18,8 @@ giversWithFinalReceivers = {}
 
 
 ## FUNCTIONS ##
-def PopulateGiversDictionary(playerList):
-	for player in playerList:
-		player = player.strip()
-		if player != '':
+def PopulateGiversDictionary(validatedPlayerList):
+	for player in validatedPlayerList:
 			givers[player] = []
 
 
@@ -31,7 +33,7 @@ def CheckGiverLengths():
 
 def AssignInitialReceivers(giver):
 	# Assign full list of players to each giver
-	for player in playerList:
+	for player in validatedPlayerList:
 		givers[giver].append(player)
 	# print(f'\n{giver}\'s receivers:')		#debug
 	# input(givers[giver])		#debug
@@ -48,14 +50,8 @@ def AssignInitialReceivers(giver):
 
 def ChooseReceiver(activeGiver):
 	print(givers) #debug
-	# The last giver will occasionally not have any receiver
-	# options left due to the randomized choosing of
-	# givers and receivers.
-	# When this happens, the assignment process restarts
 	if len(givers[activeGiver]) > 0:
 		activeReceiver = random.choice(givers[activeGiver])
-	else:
-		Restart()
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
 	giversWithFinalReceivers[activeGiver] = activeReceiver
 	del givers[activeGiver]
@@ -70,7 +66,7 @@ def ChooseReceiver(activeGiver):
 
 
 def Restart():
-	PopulateGiversDictionary()
+	PopulateGiversDictionary(validatedPlayerList)
 	for giver in givers:
 		AssignInitialReceivers(giver)
 
@@ -104,8 +100,27 @@ with open('LastYearMatches.txt') as file:
 # input(lastMatches)		#debug
 
 
+# Get & validate player list
 playerList = input('Enter list of people participating separated by commas: ').split(',')
-PopulateGiversDictionary(playerList)
+input(playerList)
+validatedPlayerList = []
+# Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
+for player in playerList:
+	player = player.strip()
+	if player in validatedPlayerList:
+		input(f'Duplicate player found: {player}. Please type "Enter" to exit then re-run script')
+		sys.exit()
+	else:
+		if player != '':
+			validatedPlayerList.append(player)
+	input(validatedPlayerList)
+totalPlayers = len(validatedPlayerList)
+if totalPlayers < 4:
+	input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
+	sys.exit()
+
+
+PopulateGiversDictionary(validatedPlayerList)
 # input(givers) #debug
 
 
@@ -124,7 +139,14 @@ while True:
 	if activeGiver == '':
 		activeGiver = random.choice(list(givers.keys()))
 		# print('\nRandomly chosen giver: ' + activeGiver)		#debug
-	ChooseReceiver(activeGiver)
+	# The last giver will occasionally not have any receiver
+	# options left due to the randomized choosing of
+	# givers and receivers.
+	# When this happens, the assignment process restarts
+	try:
+		ChooseReceiver(activeGiver)
+	except:
+		Restart()
 	# Check length of givers{} to see if all have been assigned receivers
 	if len(givers.keys()) == 0:
 		break
