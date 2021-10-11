@@ -3,6 +3,8 @@ Handle special characters entered in names by user so script won't attempt to ma
 
 Make timestamped dir for each script run
 
+Use "if __name__ == '__main__'" setup
+
 Continue asking for player list if duplicates are found or there is an insufficient number of players
 
 Keep any 2 players from being each other's givers & receivers.
@@ -42,8 +44,6 @@ def AssignInitialReceivers(giver):
 	# Assign full list of players to each giver
 	for player in validatedPlayerList:
 		givers[giver].append(player)
-	# print(f'\n{giver}\'s receivers:')		#debug
-	# input(givers[giver])		#debug
 
 	# Remove giver from their own receiver list
 	givers[giver].remove(giver)
@@ -51,25 +51,18 @@ def AssignInitialReceivers(giver):
 	if giver in lastMatches:
 		if lastMatches[giver] in givers[giver]:
 			givers[giver].remove(lastMatches[giver])
-	# print(f'\n{giver}\'s receivers after removing invalid ones:')		#debug
-	# input(givers[giver])		#debug
 
 
 def ChooseReceiver(activeGiver):
-	print(givers) #debug
 	if len(givers[activeGiver]) > 0:
 		activeReceiver = random.choice(givers[activeGiver])
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
 	giversWithFinalReceivers[activeGiver] = activeReceiver
 	del givers[activeGiver]
-	# print(f'\nreceiverLists before removing {activeReceiver}:')		#debug
-	# DebugPrintCurrentAssignments()		#debug
 	# Remove assigned receiver from all other giver's receivers lists
 	for giver, receiverList in givers.items():
 		if activeReceiver in receiverList:
 			receiverList.remove(activeReceiver)
-	# print(f'receiverList after removing {activeReceiver}:')		#debug
-	# DebugPrintCurrentAssignments()		#debug
 
 
 def Restart():
@@ -77,16 +70,6 @@ def Restart():
 	for giver in givers:
 		AssignInitialReceivers(giver)
 
-
-def DebugPrintCurrentAssignments():
-	print('giversWithFinalReceivers{}:')
-	for giver, receiver in giversWithFinalReceivers.items():
-		print(giver + ': ' + receiver)
-	print('\ngivers{}:')
-	for giver, receiverList in givers.items():
-		print(giver + ':')
-		print(receiverList)		#debug
-	input('')
 
 
 
@@ -103,13 +86,10 @@ with open('LastYearMatches.txt') as file:
 			giver = oldMatch[0]
 			receiver = oldMatch[1]
 			lastMatches[giver] = receiver
-# print('\nlastMatches:')		#debug
-# input(lastMatches)		#debug
 
 
 # Get & validate player list
 playerList = input('Enter list of people participating separated by commas: ').split(',')
-input(playerList)
 validatedPlayerList = []
 # Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
 for player in playerList:
@@ -120,7 +100,6 @@ for player in playerList:
 	else:
 		if player != '':
 			validatedPlayerList.append(player)
-	input(validatedPlayerList)
 totalPlayers = len(validatedPlayerList)
 if totalPlayers < 4:
 	input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
@@ -128,14 +107,11 @@ if totalPlayers < 4:
 
 
 PopulateGiversDictionary(validatedPlayerList)
-# input(givers) #debug
 
 
 # Add all giver names to each giver then remove their own name & their last year receiver
 for giver in givers:
 	AssignInitialReceivers(giver)
-# print('\ngivers after being assigned receivers')		#debug
-# DebugPrintCurrentAssignments()		#debug
 
 
 
@@ -145,7 +121,6 @@ while True:
 	activeGiver = CheckGiverLengths()
 	if activeGiver == '':
 		activeGiver = random.choice(list(givers.keys()))
-		# print('\nRandomly chosen giver: ' + activeGiver)		#debug
 	# The last giver will occasionally not have any receiver
 	# options left due to the randomized choosing of
 	# givers and receivers.
@@ -158,10 +133,6 @@ while True:
 	if len(givers.keys()) == 0:
 		break
 
-print('\nGivers with final receivers:')		#debug
-for giver, receiver in giversWithFinalReceivers.items():		#debug
-	print(giver + ': ' + receiver)		#debug
-# input('Test complete!')		#debug
 
 
 ## CREATE & EDIT FILES ##
@@ -170,7 +141,6 @@ for giver, receiver in giversWithFinalReceivers.items():		#debug
 with open('LastYearMatches.txt', 'w') as file:
 	 print('# IMPORTANT. If you edit this file, you must follow the following syntax: <giver name>:<receiver name>\n', file=file)
 	 for giver, receiver in giversWithFinalReceivers.items():
-		 receiver = str(receiver)
 		 print(f'{giver}:{receiver}', file=file)
 
 
