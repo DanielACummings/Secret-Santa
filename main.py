@@ -1,5 +1,12 @@
-'''
+''' Possible features to add
+Handle special characters entered in names by user so script won't attempt to make invalid filenames
+
+Make timestamped dir for each script run
+
 Continue asking for player list if duplicates are found or there is an insufficient number of players
+
+Keep any 2 players from being each other's givers & receivers.
+E.g., keep Groot from buying for Tragdor when Tragdor is buying for Groot
 '''
 
 import os, random, sys
@@ -167,10 +174,12 @@ with open('LastYearMatches.txt', 'w') as file:
 		 print(f'{giver}:{receiver}', file=file)
 
 
-# # Creates one file per giver named after the giver which contains their receiver's name
-# # os.mkdir('SecretSantaMatches')
-# os.chdir('SecretSantaMatches')
-# for giver, receiver in givers.items():
-#	 receiver = str(receiver)[2:-2]
-#	 with open(f'{giver}.txt', 'w') as file:
-#		 print(f'You are buying for {receiver}', file=file)
+# Creates one file per giver. Each file is named after a giver & contains their receiver's name
+cwd = os.getcwd()
+matchesDir = cwd + '\\SecretSantaMatches'
+# Make dir to put giver files into if it doesn't exist
+if not os.path.exists(matchesDir):
+	os.mkdir(matchesDir)
+for giver, receiver in giversWithFinalReceivers.items():
+	 with open(f'{matchesDir}\\{giver}.txt', 'w') as file:
+		 print(f'You are buying for {receiver}', file=file)
