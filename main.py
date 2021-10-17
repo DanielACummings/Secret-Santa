@@ -1,7 +1,7 @@
 ''' Possible features to add
 Handle special characters entered in names by user so script won't attempt to make invalid filenames
 
-Make timestamped dir for each script run
+If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
 
 Use "if __name__ == '__main__'" setup
 
@@ -9,9 +9,10 @@ Continue asking for player list if duplicates are found or there is an insuffici
 
 Keep any 2 players from being each other's givers & receivers.
 E.g., keep Groot from buying for Tragdor when Tragdor is buying for Groot
+Requires 5 players minimum?
 '''
 
-import os, random, sys
+import os, random, sys, datetime
 
 version = "0.0.2"
 
@@ -145,11 +146,25 @@ with open('LastYearMatches.txt', 'w') as file:
 
 
 # Creates one file per giver. Each file is named after a giver & contains their receiver's name
-cwd = os.getcwd()
-matchesDir = cwd + '\\SecretSantaMatches'
-# Make dir to put giver files into if it doesn't exist
-if not os.path.exists(matchesDir):
+matchesDir = 'Matches-' + datetime.datetime.today().strftime("%Y-%b-%d")
+# If a "Matches-<YYYYMMMDD>" dir exists, create another one
+# ending with "_<i>". The value of i depends on what
+# additional "_<i>" files already exist
+if os.path.exists(matchesDir):
+	i = 2
+	while True:
+		dupMatchesDir = matchesDir + '_' + str(i)
+		if os.path.exists(dupMatchesDir):
+			i += 1
+		else:
+			os.mkdir(dupMatchesDir)
+			matchesDir = dupMatchesDir
+			break
+else:
 	os.mkdir(matchesDir)
+	
 for giver, receiver in giversWithFinalReceivers.items():
 	 with open(f'{matchesDir}\\{giver}.txt', 'w') as file:
 		 print(f'You are buying for {receiver}', file=file)
+
+print('\nFinished!')
