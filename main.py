@@ -1,5 +1,5 @@
 ''' Possible features to add
-Handle special characters entered in names by user so script won't attempt to make invalid filenames
+Make error handling function
 
 If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
 
@@ -56,6 +56,32 @@ def Restart(givers, validatedPlayerList, lastMatches):
 		AssignInitialReceivers(giver, givers, validatedPlayerList, lastMatches)
 
 
+def ValidatePlayers(playerList):
+	# Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
+	validatedPlayerList = []
+	for player in playerList:
+		player = player.strip()
+		if player != '':
+			# Remove non-alphanumeric chars from name
+			# so it can be used in file naming
+			alNumName = ''
+			for char in player:
+				if char.isalnum():
+					alNumName += char
+			# Keeps improperly entered names that
+			# are only non-alphanumeric from being added
+			# to validatedPlayerList as empty strings
+			if len(alNumName) < 1:
+				input(f'Invalid player name: {player}.\nOnly contains special characters.\nPlease type "Enter" to exit then re-run script')
+				sys.exit()
+			elif alNumName in validatedPlayerList:
+				input(f'Duplicate player found: {alNumName}.\nPlease type "Enter" to exit then re-run script')
+				sys.exit()
+			else:
+				validatedPlayerList.append(alNumName)
+	return validatedPlayerList
+
+
 
 
 
@@ -84,28 +110,8 @@ def main():
 	'''
 	# Get & validate player list
 	playerList = input('Enter list of people participating separated by commas: ').split(',')
-	validatedPlayerList = []
-	# Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
-	for player in playerList:
-		player = player.strip()
-		if player in validatedPlayerList:
-			input(f'Duplicate player found: {player}. Please type "Enter" to exit then re-run script')
-			sys.exit()
-		else:
-			if player != '':
-				# Remove non-alphanumeric chars from name
-				# so it can be used in file naming
-				alNumName = ''
-				for char in player:
-					if char.isalnum():
-						alNumName += char
-				# Keeps improperly entered names that are
-				# only non-alphanumeric from being added
-				# to validatedPlayerList as empty strings
-				if len(alNumName) < 1:
-					input(f'Invalid player name: {player}. Only contains special characters')
-				else:
-					validatedPlayerList.append(alNumName)
+	validatedPlayerList = ValidatePlayers(playerList)
+
 	totalPlayers = len(validatedPlayerList)
 	if totalPlayers < 4:
 		input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
