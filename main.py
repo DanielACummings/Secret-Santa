@@ -57,6 +57,7 @@ def Restart(givers, validatedPlayerList, lastMatches):
 
 
 def ValidatePlayers(playerList):
+	errorMessages = []
 	# Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
 	validatedPlayerList = []
 	for player in playerList:
@@ -72,21 +73,19 @@ def ValidatePlayers(playerList):
 			# are only non-alphanumeric from being added
 			# to validatedPlayerList as empty strings
 			if len(alNumName) < 1:
-				input(f'Invalid player name: {player}.\nOnly contains special characters.\nPlease type "Enter" to exit then re-run script')
-				sys.exit()
-			elif alNumName in validatedPlayerList:
-				input(f'Duplicate player found: {alNumName}.\nPlease type "Enter" to exit then re-run script')
-				sys.exit()
-			else:
+				errorMessages.append(f'Invalid player name which only contains special characters: {player}')
+			if alNumName in validatedPlayerList:
+				errorMessages.append(f'Duplicate player found: {alNumName}.')
+			if len(errorMessages) == 0:
 				validatedPlayerList.append(alNumName)
-	return validatedPlayerList
+	return validatedPlayerList, errorMessages
 
 
 
 
 
 def main():
-	version = "0.0.3"
+	version = "0.0.4"
 	givers = {}
 	lastMatches = {}
 	giversWithFinalReceivers = {}
@@ -109,8 +108,18 @@ def main():
 	Trogdor, Satoshi Nakamoto, Aragorn, Nacho Libre, Li'l Sebastian, Groot, Brave Sir Robin
 	'''
 	# Get & validate player list
-	playerList = input('Enter list of people participating separated by commas: ').split(',')
-	validatedPlayerList = ValidatePlayers(playerList)
+	print('')
+	while True:
+		playerList = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
+		validatedPlayerList, errorMessages = ValidatePlayers(playerList)
+		if len(errorMessages) > 0:
+			print('')
+			for message in errorMessages:
+				print(message)
+			errorMessages = []
+		else:
+			break
+
 
 	totalPlayers = len(validatedPlayerList)
 	if totalPlayers < 4:
