@@ -12,7 +12,6 @@ Requires 5 players minimum?
 
 import os, random, sys, datetime
 
-## FUNCTIONS ##
 def PopulateGiversDictionary(givers, validatedPlayerList):
 	for player in validatedPlayerList:
 			givers[player] = []
@@ -61,8 +60,7 @@ def Restart(givers, validatedPlayerList, lastMatches):
 
 
 def main():
-	## SETUP ##
-	version = "0.0.2"
+	version = "0.0.3"
 	givers = {}
 	lastMatches = {}
 	giversWithFinalReceivers = {}
@@ -95,7 +93,19 @@ def main():
 			sys.exit()
 		else:
 			if player != '':
-				validatedPlayerList.append(player)
+				# Remove non-alphanumeric chars from name
+				# so it can be used in file naming
+				alNumName = ''
+				for char in player:
+					if char.isalnum():
+						alNumName += char
+				# Keeps improperly entered names that are
+				# only non-alphanumeric from being added
+				# to validatedPlayerList as empty strings
+				if len(alNumName) < 1:
+					input(f'Invalid player name: {player}. Only contains special characters')
+				else:
+					validatedPlayerList.append(alNumName)
 	totalPlayers = len(validatedPlayerList)
 	if totalPlayers < 4:
 		input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
@@ -166,6 +176,5 @@ def main():
 
 
 # Run main() if file is being run rather than imported as a module
-# Allows functions to be imported to other Python files 
 if __name__ == '__main__':
 	main()
