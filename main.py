@@ -12,12 +12,12 @@ Requires 5 players minimum?
 
 import os, random, sys, datetime
 
-def PopulateGiversDictionary(givers, validatedPlayerList):
-	for player in validatedPlayerList:
+def PopulateGiversDictionary(givers: dict, validatedPlayers: list) -> None:
+	for player in validatedPlayers:
 			givers[player] = []
 
 
-def CheckGiverLengths(givers):
+def CheckGiverLengths(givers: dict) -> str:
 	activeGiver = ''
 	for giver, receivers in givers.items():
 		if len(receivers) < 2:
@@ -25,9 +25,9 @@ def CheckGiverLengths(givers):
 	return activeGiver
 
 
-def AssignInitialReceivers(giver, givers, validatedPlayerList, lastMatches):
+def AssignInitialReceivers(giver: str, givers: dict, validatedPlayers: list, lastMatches: dict) -> None:
 	# Assign full list of players to each giver
-	for player in validatedPlayerList:
+	for player in validatedPlayers:
 		givers[giver].append(player)
 
 	# Remove giver from their own receiver list
@@ -38,7 +38,7 @@ def AssignInitialReceivers(giver, givers, validatedPlayerList, lastMatches):
 			givers[giver].remove(lastMatches[giver])
 
 
-def ChooseReceiver(activeGiver, givers, giversWithFinalReceivers):
+def ChooseReceiver(activeGiver: str, givers: dict, giversWithFinalReceivers: dict) -> None:
 	if len(givers[activeGiver]) > 0:
 		activeReceiver = random.choice(givers[activeGiver])
 	# Add giver & receiver pair to giversWithFinalReceivers{} then delete giver from givers{}
@@ -48,19 +48,19 @@ def ChooseReceiver(activeGiver, givers, giversWithFinalReceivers):
 	for giver, receiverList in givers.items():
 		if activeReceiver in receiverList:
 			receiverList.remove(activeReceiver)
+5
 
-
-def Restart(givers, validatedPlayerList, lastMatches):
-	PopulateGiversDictionary(givers, validatedPlayerList)
+def Restart(givers: dict, validatedPlayers: list, lastMatches: dict) -> None:
+	PopulateGiversDictionary(givers, validatedPlayers)
 	for giver in givers:
-		AssignInitialReceivers(giver, givers, validatedPlayerList, lastMatches)
+		AssignInitialReceivers(giver, givers, validatedPlayers, lastMatches)
 
 
-def ValidatePlayers(playerList):
+def ValidatePlayers(players: list) -> list and list:
 	errorMessages = []
-	# Add players from playerList to validatedPlayerList that aren't empty strings or duplicates
-	validatedPlayerList = []
-	for player in playerList:
+	# Add players from players to validatedPlayers that aren't empty strings or duplicates
+	validatedPlayers = []
+	for player in players:
 		player = player.strip()
 		if player != '':
 			# Remove non-alphanumeric chars from name
@@ -71,14 +71,14 @@ def ValidatePlayers(playerList):
 					alNumName += char
 			# Keeps improperly entered names that
 			# are only non-alphanumeric from being added
-			# to validatedPlayerList as empty strings
+			# to validatedPlayers as empty strings
 			if len(alNumName) < 1:
 				errorMessages.append(f'Invalid player name which only contains special characters: {player}')
-			if alNumName in validatedPlayerList:
+			if alNumName in validatedPlayers:
 				errorMessages.append(f'Duplicate player found: {alNumName}.')
 			if len(errorMessages) == 0:
-				validatedPlayerList.append(alNumName)
-	return validatedPlayerList, errorMessages
+				validatedPlayers.append(alNumName)
+	return validatedPlayers, errorMessages
 
 
 
@@ -110,8 +110,8 @@ def main():
 	# Get & validate player list
 	print('')
 	while True:
-		playerList = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
-		validatedPlayerList, errorMessages = ValidatePlayers(playerList)
+		players = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
+		validatedPlayers, errorMessages = ValidatePlayers(players)
 		if len(errorMessages) > 0:
 			print('')
 			for message in errorMessages:
@@ -121,7 +121,7 @@ def main():
 			break
 
 
-	totalPlayers = len(validatedPlayerList)
+	totalPlayers = len(validatedPlayers)
 	if totalPlayers < 4:
 		input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
 		sys.exit()
@@ -129,12 +129,12 @@ def main():
 
 
 	## SCRIPT BODY ##
-	PopulateGiversDictionary(givers, validatedPlayerList)
+	PopulateGiversDictionary(givers, validatedPlayers)
 
 
 	# Add all giver names to each giver then remove their own name & their last year receiver
 	for giver in givers:
-		AssignInitialReceivers(giver, givers, validatedPlayerList, lastMatches)
+		AssignInitialReceivers(giver, givers, validatedPlayers, lastMatches)
 
 
 	# Choose final receivers
@@ -150,7 +150,7 @@ def main():
 		try:
 			ChooseReceiver(activeGiver, givers, giversWithFinalReceivers)
 		except:
-			Restart(givers, validatedPlayerList, lastMatches)
+			Restart(givers, validatedPlayers, lastMatches)
 		# Check length of givers{} to see if all have been assigned receivers
 		if len(givers.keys()) == 0:
 			break
