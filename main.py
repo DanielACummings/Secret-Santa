@@ -1,16 +1,14 @@
 ''' Possible features to add
-Make error handling function
+Update matching algorithm to never require a restart
 
 If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
-
-Continue asking for player list if duplicates are found or there is an insufficient number of players
 
 Keep any 2 players from being each other's givers & receivers.
 E.g., keep Groot from buying for Tragdor when Tragdor is buying for Groot
 Requires 5 players minimum?
 '''
 
-import os, random, sys, datetime
+import os, random, datetime
 
 def PopulateGiversDictionary(givers: dict, validatedPlayers: list) -> None:
 	for player in validatedPlayers:
@@ -112,19 +110,18 @@ def main():
 	while True:
 		players = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
 		validatedPlayers, errorMessages = ValidatePlayers(players)
+		totalPlayers = len(validatedPlayers)
 		if len(errorMessages) > 0:
 			print('')
 			for message in errorMessages:
 				print(message)
 			errorMessages = []
+		elif totalPlayers < 4:
+				print(f'A minimum of 4 players is required. {totalPlayers} were entered')
 		else:
 			break
 
 
-	totalPlayers = len(validatedPlayers)
-	if totalPlayers < 4:
-		input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
-		sys.exit()
 
 
 
@@ -186,10 +183,10 @@ def main():
 		with open(f'{matchesDir}\\{giver}.txt', 'w') as file:
 			print(f'You are buying for {receiver}', file=file)
 
-	print('\nFinished!')
 
 
-
-# Run main() if file is being run rather than imported as a module
+# Run main() if file is being run directly rather
+# than being imported as a module
 if __name__ == '__main__':
 	main()
+	print('\nFinished!\nType <ENTER> to exit')
