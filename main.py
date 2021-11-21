@@ -1,6 +1,9 @@
 ''' Possible features to add
 Update matching algorithm to never require a restart
 
+Make Error class to allow for errors to be called with short hand names, & for easier identifying of all error
+scenarios when testing
+
 If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
 
 Keep any 2 players from being each other's givers & receivers.
@@ -9,6 +12,23 @@ Requires 5 players minimum?
 '''
 
 import os, random, datetime
+
+
+class Msgs:
+	errors = []
+
+	@staticmethod
+	def PrintErrors(self: object) -> None:
+# test
+		input('PrintErrors was called')
+		print('\nInput errors:')
+		for error in self.errors:
+			print('\t' + error)
+		self.errors = []
+
+
+
+
 
 def PopulateGiversDictionary(givers: dict, validatedPlayers: list) -> None:
 	for player in validatedPlayers:
@@ -54,8 +74,7 @@ def Restart(givers: dict, validatedPlayers: list, lastMatches: dict) -> None:
 		AssignInitialReceivers(giver, givers, validatedPlayers, lastMatches)
 
 
-def ValidatePlayers(players: list) -> list and list:
-	errorMessages = []
+def ValidatePlayers(players: list) -> list:
 	# Add players from players to validatedPlayers that aren't empty strings or duplicates
 	validatedPlayers = []
 	for player in players:
@@ -63,32 +82,31 @@ def ValidatePlayers(players: list) -> list and list:
 		if player != '':
 			# Remove non-alphanumeric chars from name
 			# so it can be used in file naming
-			alNumName = ''
+			alNumPlayer = ''
 			for char in player:
 				if char.isalnum():
-					alNumName += char
-			# Keeps improperly entered names that
-			# are only non-alphanumeric from being added
-			# to validatedPlayers as empty strings
-			if len(alNumName) < 1:
-				errorMessages.append(f'Invalid player name which only contains special characters: {player}')
-			if alNumName in validatedPlayers:
-				errorMessages.append(f'Duplicate player found: {alNumName}.')
-			if len(errorMessages) == 0:
-				validatedPlayers.append(alNumName)
-	return validatedPlayers, errorMessages
+					alNumPlayer += char
+			# Keeps improperly entered names that are only non-alphanumeric from being added to validatedPlayers
+			# as empty strings
+			if len(alNumPlayer) < 1:
+				Msgs.errors.append(f'Invalid player name which only contains special characters: {player}')
+			if alNumPlayer in validatedPlayers:
+				Msgs.errors.append(f'Duplicate player found: {alNumPlayer}.')
+			if len(Msgs.errors) == 0:
+				validatedPlayers.append(alNumPlayer)
+	return validatedPlayers
 
 
 
 
 
 def main():
-	version = "0.0.4"
+	version = "0.1.0"
 	givers = {}
 	lastMatches = {}
 	giversWithFinalReceivers = {}
 
-	print('Secret Santa Script version ' + version)
+	print('Secret Santa version ' + version)
 
 
 	# Populate lastMatches from LastYearMatches.txt
@@ -109,23 +127,20 @@ def main():
 	print('')
 	while True:
 		players = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
-		validatedPlayers, errorMessages = ValidatePlayers(players)
+		validatedPlayers = ValidatePlayers(players)
 		totalPlayers = len(validatedPlayers)
-		if len(errorMessages) > 0:
-			print('')
-			for message in errorMessages:
-				print(message)
-			errorMessages = []
-		elif totalPlayers < 4:
-				print(f'A minimum of 4 players is required. {totalPlayers} were entered')
+		if totalPlayers < 4:
+				Msgs.errors.append(f'A minimum of 4 players is required. {totalPlayers} were entered')
+
+		# Print error messages if present or continue
+# test
+		input(f'Contents of errors: {len(Msgs.errors)}')
+		if len(Msgs.errors) > 0:
+			Msgs.PrintErrors
 		else:
 			break
 
 
-
-
-
-	## SCRIPT BODY ##
 	PopulateGiversDictionary(givers, validatedPlayers)
 
 
