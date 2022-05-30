@@ -1,9 +1,6 @@
 ''' Possible features to add
 Update matching algorithm to never require a restart
 
-Make Error class to allow for errors to be called with short hand names, & for easier identifying of all error
-scenarios when testing
-
 If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
 
 Keep any 2 players from being each other's givers & receivers.
@@ -11,19 +8,20 @@ E.g., keep Groot from buying for Tragdor when Tragdor is buying for Groot
 Requires 5 players minimum?
 '''
 
-import os, random, datetime
+import datetime, os, random
 
 
-class Msgs:
+class Err():
 	errors = []
 
-	@staticmethod
-	def PrintErrors(self: object) -> None:
-# test
-		input('PrintErrors was called')
-		print('\nInput errors:')
-		for error in self.errors:
-			print('\t' + error)
+	def PrintErrors(self):
+		if len(self.errors) == 1:
+			print(f'\nError: {self.errors[0]}')
+		else:
+			print('\nErrors:')
+			for error in self.errors:
+				print('\t' + error)
+		print()
 		self.errors = []
 
 
@@ -74,7 +72,7 @@ def Restart(givers: dict, validatedPlayers: list, lastMatches: dict) -> None:
 		AssignInitialReceivers(giver, givers, validatedPlayers, lastMatches)
 
 
-def ValidatePlayers(players: list) -> list:
+def ValidatePlayers(err: object, players: list) -> list:
 	# Add players from players to validatedPlayers that aren't empty strings or duplicates
 	validatedPlayers = []
 	for player in players:
@@ -89,10 +87,10 @@ def ValidatePlayers(players: list) -> list:
 			# Keeps improperly entered names that are only non-alphanumeric from being added to validatedPlayers
 			# as empty strings
 			if len(alNumPlayer) < 1:
-				Msgs.errors.append(f'Invalid player name which only contains special characters: {player}')
+				err.errors.append(f'Invalid player name which only contains special characters: {player}')
 			if alNumPlayer in validatedPlayers:
-				Msgs.errors.append(f'Duplicate player found: {alNumPlayer}.')
-			if len(Msgs.errors) == 0:
+				err.errors.append(f'Duplicate player found: {alNumPlayer}.')
+			if len(err.errors) == 0:
 				validatedPlayers.append(alNumPlayer)
 	return validatedPlayers
 
@@ -105,6 +103,8 @@ def main():
 	givers = {}
 	lastMatches = {}
 	giversWithFinalReceivers = {}
+
+	err = Err()
 
 	print('Secret Santa version ' + version)
 
@@ -126,17 +126,15 @@ def main():
 	# Get & validate player list
 	print('')
 	while True:
-		players = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
-		validatedPlayers = ValidatePlayers(players)
+		players = input('Enter list of people participating separated by commas. Note: special character will be removed:\n').split(',')
+		validatedPlayers = ValidatePlayers(err, players)
 		totalPlayers = len(validatedPlayers)
 		if totalPlayers < 4:
-				Msgs.errors.append(f'A minimum of 4 players is required. {totalPlayers} were entered')
+			err.errors.append(f'A minimum of 4 players is required. You entered {totalPlayers} valid players.')
 
-		# Print error messages if present or continue
-# test
-		input(f'Contents of errors: {len(Msgs.errors)}')
-		if len(Msgs.errors) > 0:
-			Msgs.PrintErrors
+		# Print error messages if present
+		if len(err.errors) > 0:
+			err.PrintErrors()
 		else:
 			break
 
