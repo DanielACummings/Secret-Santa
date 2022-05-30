@@ -1,16 +1,32 @@
 ''' Possible features to add
-Make error handling function
+Update matching algorithm to never require a restart
 
 If LastYearMatches.txt doesn't exist, create it, prompt user to edit it, tell them they can paste from a spreadsheet, & use tab delimited file
-
-Continue asking for player list if duplicates are found or there is an insufficient number of players
 
 Keep any 2 players from being each other's givers & receivers.
 E.g., keep Groot from buying for Tragdor when Tragdor is buying for Groot
 Requires 5 players minimum?
 '''
 
-import os, random, sys, datetime
+import datetime, os, random
+
+
+class Err():
+	errors = []
+
+	def PrintErrors(self):
+		if len(self.errors) == 1:
+			print(f'\nError: {self.errors[0]}')
+		else:
+			print('\nErrors:')
+			for error in self.errors:
+				print('\t' + error)
+		print()
+		self.errors = []
+
+
+
+
 
 def PopulateGiversDictionary(givers: dict, validatedPlayers: list) -> None:
 	for player in validatedPlayers:
@@ -56,8 +72,7 @@ def Restart(givers: dict, validatedPlayers: list, lastMatches: dict) -> None:
 		AssignInitialReceivers(giver, givers, validatedPlayers, lastMatches)
 
 
-def ValidatePlayers(players: list) -> list and list:
-	errorMessages = []
+def ValidatePlayers(err: object, players: list) -> list:
 	# Add players from players to validatedPlayers that aren't empty strings or duplicates
 	validatedPlayers = []
 	for player in players:
@@ -65,32 +80,33 @@ def ValidatePlayers(players: list) -> list and list:
 		if player != '':
 			# Remove non-alphanumeric chars from name
 			# so it can be used in file naming
-			alNumName = ''
+			alNumPlayer = ''
 			for char in player:
 				if char.isalnum():
-					alNumName += char
-			# Keeps improperly entered names that
-			# are only non-alphanumeric from being added
-			# to validatedPlayers as empty strings
-			if len(alNumName) < 1:
-				errorMessages.append(f'Invalid player name which only contains special characters: {player}')
-			if alNumName in validatedPlayers:
-				errorMessages.append(f'Duplicate player found: {alNumName}.')
-			if len(errorMessages) == 0:
-				validatedPlayers.append(alNumName)
-	return validatedPlayers, errorMessages
+					alNumPlayer += char
+			# Keeps improperly entered names that are only non-alphanumeric from being added to validatedPlayers
+			# as empty strings
+			if len(alNumPlayer) < 1:
+				err.errors.append(f'Invalid player name which only contains special characters: {player}')
+			if alNumPlayer in validatedPlayers:
+				err.errors.append(f'Duplicate player found: {alNumPlayer}.')
+			if len(err.errors) == 0:
+				validatedPlayers.append(alNumPlayer)
+	return validatedPlayers
 
 
 
 
 
 def main():
-	version = "0.0.4"
+	version = "0.1.0"
 	givers = {}
 	lastMatches = {}
 	giversWithFinalReceivers = {}
 
-	print('Secret Santa Script version ' + version)
+	err = Err()
+
+	print('Secret Santa version ' + version)
 
 
 	# Populate lastMatches from LastYearMatches.txt
@@ -110,25 +126,19 @@ def main():
 	# Get & validate player list
 	print('')
 	while True:
-		players = input('Enter list of people participating separated by commas. Note: special character will be removed.\n').split(',')
-		validatedPlayers, errorMessages = ValidatePlayers(players)
-		if len(errorMessages) > 0:
-			print('')
-			for message in errorMessages:
-				print(message)
-			errorMessages = []
+		players = input('Enter list of people participating separated by commas. Note: special character will be removed:\n').split(',')
+		validatedPlayers = ValidatePlayers(err, players)
+		totalPlayers = len(validatedPlayers)
+		if totalPlayers < 4:
+			err.errors.append(f'A minimum of 4 players is required. You entered {totalPlayers} valid players.')
+
+		# Print error messages if present
+		if len(err.errors) > 0:
+			err.PrintErrors()
 		else:
 			break
 
 
-	totalPlayers = len(validatedPlayers)
-	if totalPlayers < 4:
-		input(f'A minimum of 4 players is required, & you entered {totalPlayers}. Please type "Enter" to exit then re-run script')
-		sys.exit()
-
-
-
-	## SCRIPT BODY ##
 	PopulateGiversDictionary(givers, validatedPlayers)
 
 
@@ -186,10 +196,10 @@ def main():
 		with open(f'{matchesDir}\\{giver}.txt', 'w') as file:
 			print(f'You are buying for {receiver}', file=file)
 
-	print('\nFinished!')
 
 
-
-# Run main() if file is being run rather than imported as a module
+# Run main() if file is being run directly rather
+# than being imported as a module
 if __name__ == '__main__':
 	main()
+	print('\nFinished!\nType <ENTER> to exit')
